@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
       themeMode: ThemeMode.system,
       darkTheme: darkTheme(),
       theme: lightTheme(),
-      home: const MagicBallScreen(),
+      home: const MainMagicBallScreen(),
     );
   }
 }

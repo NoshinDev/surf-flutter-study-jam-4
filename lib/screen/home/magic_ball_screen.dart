@@ -3,11 +3,13 @@ import 'package:flutter/services.dart';
 import 'package:surf_practice_magic_ball/constant/custom_colors.dart';
 import 'package:provider/provider.dart';
 import 'package:shake/shake.dart';
+import 'package:surf_practice_magic_ball/utils/guide_text.dart';
 import 'provider/magic_ball_provider.dart';
 import 'widgets/ball.dart';
+import 'widgets/ball_shadow.dart';
 
-class MagicBallScreen extends StatelessWidget {
-  const MagicBallScreen({Key? key}) : super(key: key);
+class MainMagicBallScreen extends StatelessWidget {
+  const MainMagicBallScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -15,6 +17,7 @@ class MagicBallScreen extends StatelessWidget {
     var width = MediaQueryData.fromView(View.of(context)).size.width;
     var devicePixelRatio =
         MediaQueryData.fromView(View.of(context)).devicePixelRatio;
+    //Блокируем изменения ориентации на телефонах
     if (devicePixelRatio <= 2.5 && (width >= 960 || height >= 960)) {
       SystemChrome.setPreferredOrientations(
         [
@@ -31,50 +34,37 @@ class MagicBallScreen extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (BuildContext context) => MagicBallProvider(),
       builder: (context, child) {
-        return const MagicBallShake();
+        return const MagicBallScreen();
       },
     );
   }
 }
 
-class MagicBallShake extends StatefulWidget {
-  const MagicBallShake({super.key});
+class MagicBallScreen extends StatefulWidget {
+  const MagicBallScreen({super.key});
 
   @override
-  State<MagicBallShake> createState() => _MagicBallShakeState();
+  State<MagicBallScreen> createState() => _MagicBallScreenState();
 }
 
-class _MagicBallShakeState extends State<MagicBallShake> {
-  ShakeDetector? detector;
+class _MagicBallScreenState extends State<MagicBallScreen> {
+  late ShakeDetector detector;
+
   @override
   void initState() {
     super.initState();
-     detector = ShakeDetector.autoStart(
+    detector = ShakeDetector.autoStart(
       onPhoneShake: () {
-        Provider.of<MagicBallProvider>(context, listen: false)
-            .getPredictionResponse();
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Shake!'),
-          ),
-        );
-        // Do stuff on phone shake
+        context.read<MagicBallProvider>().getPredictionResponse();
       },
-      minimumShakeCount: 1,
-      shakeSlopTimeMS: 500,
-      shakeCountResetTime: 3000,
-      shakeThresholdGravity: 2.7,
     );
-
-    // To close: detector.stopListening();
-    // ShakeDetector.waitForStart() waits for user to call detector.startListening();
   }
 
   @override
   void dispose() {
-    // TODO: implement dispose
     super.dispose();
-    detector?.stopListening();
+
+    detector.stopListening();
   }
 
   @override
@@ -82,6 +72,7 @@ class _MagicBallShakeState extends State<MagicBallShake> {
     final Brightness brightness = MediaQuery.of(context).platformBrightness;
     final String mode = brightness == Brightness.dark ? 'dark' : 'light';
     final String assetUrl = 'assets/images/${mode}_ball/';
+    var width = MediaQueryData.fromView(View.of(context)).size.width;
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
@@ -93,38 +84,27 @@ class _MagicBallShakeState extends State<MagicBallShake> {
               end: Alignment.bottomCenter),
         ),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                InkWell(
-                  onTap: () {
-                    Provider.of<MagicBallProvider>(context, listen: false)
-                        .getPredictionResponse();
-                  },
-                  child: Ball(assetUrl: assetUrl),
-                ),
-                Stack(
-                  children: [
-                    Center(child: Image.asset('${assetUrl}shadow_back.png')),
-                    Transform.translate(
-                        offset: const Offset(0, 10),
-                        child: Center(
-                            child: Image.asset('${assetUrl}shadow_up.png'))),
-                  ],
-                ),
-              ],
+            const Expanded(child: SizedBox()),
+            //Сам шар
+            Expanded(
+              flex: 3,
+              child: Ball(assetUrl: assetUrl),
             ),
-            // SizedBox(
-            //   height: 60,
-            // ),
-            Text(
-              'Нажмите на шар \nили потрясите телефон',
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.titleSmall,
-            )
+            //Тень шара
+            Expanded(
+              flex: 2,
+              child: BallShadow(assetUrl: assetUrl),
+            ),
+            //Инструкция
+            Expanded(
+              child: Text(
+                guideText(width),
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.titleSmall,
+              ),
+            ),
           ],
         ),
       ),

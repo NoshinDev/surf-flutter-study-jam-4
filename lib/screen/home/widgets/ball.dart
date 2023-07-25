@@ -1,10 +1,11 @@
+import 'dart:math';
 
-
-import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:surf_practice_magic_ball/constant/custom_shake.dart';
 import 'package:surf_practice_magic_ball/screen/home/provider/magic_ball_provider.dart';
 import 'package:surf_practice_magic_ball/domain/entity/magic_ball.dart';
+import 'package:flutter_shake_animated/flutter_shake_animated.dart';
 
 class Ball extends StatelessWidget {
   const Ball({
@@ -16,65 +17,88 @@ class Ball extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    MagicBall? magicBall = context.select<MagicBallProvider,MagicBall?>((value) => value.magicBall);
-        bool? isPressed = context.select<MagicBallProvider,bool?>((value) => value.isPressed);
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        Image.asset('${assetUrl}ball.png'),
-         
-        // WidgetMask(
-        //   mask: Image.asset('${assetUrl}ball.png'),
-        //   child: 
-        // Image.asset('${assetUrl}ball.png'),
-        //   ColorFiltered(
-        //     colorFilter:  ColorFilter.mode(
-        //       Colors.red.withOpacity(0.4),
-        //       BlendMode.srcATop,
-        //     ),
-        //     child: Image.asset('${assetUrl}ball.png'),
-        //   ),
-        // ),
-        //           SizedBox(
-        //             width: double.infinity,
-        //             child: ColorFiltered(
-        // colorFilter: const ColorFilter.mode(
-        //   Colors.red,
-        //   BlendMode.softLight,
-        // ),child: Image.asset('${assetUrl}ball.png'),),
-        //           ),
-        isPressed==null
-        ?Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 70),
-          child: SizedBox(
-              width: double.infinity,
-              child: Image.asset('${assetUrl}small_star.png')),
-        ):const SizedBox.shrink(),
-        isPressed==null?
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 90),
-          child: Align(
-            alignment: Alignment.bottomCenter,
-            child: SizedBox(
-                width: double.infinity,
-                child: Image.asset('${assetUrl}star.png',colorBlendMode: BlendMode.screen,)),
+    MagicBall? magicBall = context
+        .select<MagicBallProvider, MagicBall?>((value) => value.magicBall);
+    Object? error =
+        context.select<MagicBallProvider, Object?>((value) => value.error);
+    bool? isPressed =
+        context.select<MagicBallProvider, bool?>((value) => value.isPressed);
+    return InkWell(
+      onTap: () {
+        context.read<MagicBallProvider>().getPredictionResponse();
+      },
+      child: ShakeWidget(
+        enableWebMouseHover: false,
+        autoPlay: isPressed == true,
+        duration: const Duration(
+          milliseconds: 5000,
+        ),
+        shakeConstant: ShakeSlowConstant2(),
+        child: ShakeWidget(
+          enableWebMouseHover: false,
+          autoPlay: isPressed == false || isPressed == null,
+          duration: Duration(
+            milliseconds: 8000 + Random().nextInt(201),
           ),
-        ):const SizedBox.shrink(),
-        magicBall!=null
-         ?AnimatedTextKit(
-          onNext: (p0, p1) {
-            
-          },
-          repeatForever: false,
-          animatedTexts: [
-            FadeAnimatedText('THE HARDER!!',textStyle: Theme.of(context).textTheme.headlineMedium,
-                duration: const Duration(seconds: 3),fadeOutBegin: 0.9,fadeInEnd: 0.7),]):const SizedBox.shrink(),
-      //  magicBall!=null
-      //    ?Align(
-      //     alignment: Alignment.bottomCenter,
-      //     child: Text(magicBall.reading.toString(),style: Theme.of(context).textTheme.headlineMedium,))
-      //   :SizedBox.shrink(),
-      ],
+          shakeConstant: CustomSlowShake(),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Image.asset('${assetUrl}ball.png'),
+              AnimatedOpacity(
+                duration: const Duration(milliseconds: 500),
+                opacity: error != null ? 1 : 0,
+                child: ColorFiltered(
+                  colorFilter: ColorFilter.mode(
+                    Colors.red.withOpacity(0.7),
+                    BlendMode.srcATop,
+                  ),
+                  child: Image.asset('${assetUrl}background_default.png'),
+                ),
+              ),
+              AnimatedOpacity(
+                duration: const Duration(milliseconds: 700),
+                opacity: isPressed == null ? 1 : 0,
+                child: Padding(
+                  padding: const EdgeInsets.all(50.0),
+                  child: Image.asset(
+                    '${assetUrl}small_star.png',
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              ),
+              AnimatedOpacity(
+                duration: const Duration(milliseconds: 700),
+                opacity: isPressed == null ? 1 : 0,
+                child: Padding(
+                  padding: const EdgeInsets.all(70.0),
+                  child: Image.asset(
+                    '${assetUrl}star.png',
+                    fit: BoxFit.contain,
+                    colorBlendMode: BlendMode.screen,
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 70),
+                child: AnimatedOpacity(
+                  duration: const Duration(milliseconds: 700),
+                  opacity: magicBall != null ? 1 : 0,
+                  child: Text(
+                    magicBall?.reading ?? '',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
+}
+
+shake(bool isPressed) {
+  return isPressed == true ? ShakeSlowConstant2() : CustomSlowShake();
 }
