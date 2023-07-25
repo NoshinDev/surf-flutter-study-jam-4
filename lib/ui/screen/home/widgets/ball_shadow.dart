@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:surf_practice_magic_ball/screen/home/provider/magic_ball_provider.dart';
+import 'package:surf_practice_magic_ball/ui/screen/home/provider/magic_ball_provider.dart';
 
 class BallShadow extends StatelessWidget {
   const BallShadow({

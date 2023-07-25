@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:surf_practice_magic_ball/constant/custom_colors.dart';
 import 'package:provider/provider.dart';
 import 'package:shake/shake.dart';
+import 'package:surf_practice_magic_ball/ui/navigation/main_navigation.dart';
 import 'package:surf_practice_magic_ball/utils/guide_text.dart';
 import 'provider/magic_ball_provider.dart';
 import 'widgets/ball.dart';
@@ -74,6 +75,20 @@ class _MagicBallScreenState extends State<MagicBallScreen> {
     final String assetUrl = 'assets/images/${mode}_ball/';
     var width = MediaQueryData.fromView(View.of(context)).size.width;
     return Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        actions: [
+          InkWell(
+            onTap: () => Navigator.of(context).pushNamed(
+              MainNavigationRouteNames.settings,
+            ),
+            child: const Icon(Icons.settings),
+          ),
+        ],
+      ),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
