@@ -15,5 +15,6 @@ Android,IOS,Web
 
 
 # Ссылки на демонстрацию работы/скриншоты
-
+<img src="https://github.com/NoshinDev/surf-flutter-study-jam-4/blob/main/docs/assets/dark.jpeg?raw=true" width="220">
+<img src="https://github.com/NoshinDev/surf-flutter-study-jam-4/blob/main/docs/assets/dark_answer.jpeg?raw=true" width="220">
 https://drive.google.com/file/d/1N2BGBo6VlLBBBk3VPV7ksUakhpfxc8XL/view?usp=drivesdk
